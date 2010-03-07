@@ -23,3 +23,9 @@
 
 (def-redis-fn add-to-set [akey aval]
   (redis/sadd akey aval))
+
+(def-redis-fn push [akey aval]
+  (redis/lpush akey aval))
+
+(def-redis-fn show-list [akey]
+  (redis/lrange akey 0 200))

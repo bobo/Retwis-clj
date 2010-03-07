@@ -55,8 +55,8 @@
 
 
 (defn follow [follower following]
-  (add-to-set (followers-key follower) following)
-  (add-to-set (following-key following) follower))
+  (add-to-set (following-key follower) following)
+  (add-to-set (followers-key following) follower))
 
 (defn get-followers [uid]
   (show-set (followers-key uid)))
@@ -78,9 +78,38 @@
 (defn next-post-id []
   (increment-and-get "global:nextPostId"))
 
+(defn create-message [uid message]
+  (str (get-username uid) ":" (new java.util.Date) ":" message))
+
+  (defn message-key [mid]
+    (str "mid:" mid))
+
 (defn post-update [uid message]
   (let [mid (next-post-id)]
-    (set-key (str "mid:" mid) (str (get-username uid) ":" (new java.util.Date) ":" message))
-    mid)
-  )
+    (set-key (message-key mid) (create-message uid message))  
+    mid ))
+
+(defn timeline-key [uid]
+  (str "uid:" uid ":posts"))
+
+(defn push-to-followers-recur [followers mid]
+ (println followers)
+  (push (timeline-key (first followers)) mid)
+  (if (empty? (rest followers))
+    0
+    (push-to-followers-recur (rest followers) mid)))
+
+
+
+(defn push-to-followers [uid mid]
+  (push-to-followers-recur (get-followers uid) mid))
+
+(defn show-message [mid]
+  (get-key (message-key mid)))
+
+(defn get-timeline [uid]
+  (map show-message (show-list (timeline-key uid))))
+
+
+  
 
