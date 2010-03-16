@@ -29,3 +29,12 @@
 
 (def-redis-fn show-list [akey]
   (redis/lrange akey 0 200))
+
+
+(def-redis-fn delete [akey]
+  (redis/del akey))
+(def-redis-fn typeof [akey]
+  (redis/type akey))
+
+(def-redis-fn get-keys [pattern]
+  (redis/keys pattern))
