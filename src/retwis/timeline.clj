@@ -57,6 +57,11 @@
   (add-to-set (following-key follower) following)
   (add-to-set (followers-key following) follower))
 
+(defn unfollow [me user-to-unfollow]
+  (remove-from-set (following-key me) user-to-unfollow)
+  (remove-from-set (followers-key user-to-unfollow) me))
+
+
 (defn get-followers [uid]
   (show-set (followers-key uid)))
 
@@ -96,11 +101,14 @@
 (defn push-to-followers [uid mid]
   (push-to-followers-recur (get-followers uid) mid))
 
+(defn push-to-self [uid mid]
+  (push (timeline-key uid) mid))
 
 (defn post-update [uid message]
   (let [mid (next-post-id)]
     (set-key (message-key mid) (create-message uid message))
     (push-to-followers uid mid)
+    (push-to-self uid mid)
     (push "global:timeline" mid)
     mid ))
 
@@ -116,8 +124,19 @@
 (defn split2 [astring]
   (.split astring ":"))
 
+(defn all-user-ids []
+  (map second
+      (map split2
+        (get-keys "uid:*:username"))))
+
 (defn get-users []
   (map get-user
-    (map second
-      (map split2
-        (get-keys "uid:*:username")))))
+        (all-user-ids)))
+
+(defn following? [follower folowee]
+  (.contains (get-followers folowee) (str follower)))
+
+(defn get-uid-from-message [mid]
+  (get-uid-for-username
+    (first
+      (.split (show-message mid) ":"))))

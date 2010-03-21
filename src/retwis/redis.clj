@@ -24,6 +24,10 @@
 (def-redis-fn add-to-set [akey aval]
   (redis/sadd akey aval))
 
+(def-redis-fn remove-from-set [akey aval]
+  (redis/srem akey aval))
+
+
 (def-redis-fn push [akey aval]
   (redis/lpush akey aval))
 
